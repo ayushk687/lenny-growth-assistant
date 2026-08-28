@@ -1,0 +1,25 @@
+# Lenny Growth Assistant
+
+A Retrieval-Augmented Generation (RAG) application that lets you search and query insights from Lenny's Podcast — grounded in real transcript data, not hallucinated summaries.
+
+## Overview
+
+Lenny Growth Assistant ingests podcast transcripts, chunks and embeds them, and serves them through a chat interface backed by a local LLM. Ask a question about product growth, career advice, or leadership, and get an answer grounded in what guests actually said — with retrieval from real transcript chunks.
+
+## Tech Stack
+
+- **Backend**: FastAPI
+- **Database**: PostgreSQL (Supabase)
+- **ORM**: SQLAlchemy
+- **Migrations**: Alembic
+- **Vector Search**: pgvector
+- **Embeddings**: Sentence Transformers
+- **LLM**: Ollama running Llama 3.2
+- **Retrieval**: Custom RAG pipeline over podcast transcripts
+
+## Data
+
+- 9,539 transcript chunks indexed from Lenny's Podcast episodes
+- Transcripts stored under `backend/data/transcripts/`, organized by guest name
+
+## Project Structure
