@@ -1,0 +1,22 @@
+lenny-growth-assistant/
+│
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── database/
+│   │   ├── services/
+│   │   └── main.py
+│   │
+│   ├── alembic/
+│   │   └── versions/
+│   │
+│   ├── scripts/
+│   ├── data/
+│   │   └── transcripts/
+│   ├── alembic.ini
+│   ├── requirements.txt
+│   └── .env
+│
+├── README.md
+├── design.md
+└── .gitignore
