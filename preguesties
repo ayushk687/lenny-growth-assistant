@@ -1,0 +1,76 @@
+
+## Prerequisites
+
+- Python 3.10+
+- PostgreSQL (or Supabase project) with the `pgvector` extension enabled
+- [Ollama](https://ollama.com) installed locally, with the `llama3.2` model pulled
+
+## Setup
+
+1. Clone the repository:
+```bash
+   git clone https://github.com/ayushk687/lenny-growth-assistant.git
+   cd lenny-growth-assistant/backend
+```
+
+2. Create a virtual environment and install dependencies:
+```bash
+   python -m venv venv
+   venv\Scripts\activate   # Windows
+   # source venv/bin/activate   # macOS/Linux
+   pip install -r requirements.txt
+```
+
+3. Copy the environment template and fill in your real values:
+```bash
+   copy .env.example .env   # Windows
+   # cp .env.example .env   # macOS/Linux
+```
+   Set `DATABASE_URL` to your PostgreSQL/Supabase connection string.
+
+4. Enable `pgvector` on your database (run once):
+```sql
+   CREATE EXTENSION IF NOT EXISTS vector;
+```
+
+5. Run database migrations:
+```bash
+   alembic upgrade head
+```
+
+6. Pull the local LLM model via Ollama:
+```bash
+   ollama pull llama3.2
+```
+
+7. Ingest transcripts into the vector store:
+```bash
+   python scripts/ingest.py
+```
+
+8. Run the backend server:
+```bash
+   uvicorn app.main:app --reload
+```
+
+## API Overview
+
+- **Sessions** (`/sessions`) — create, list, and manage chat sessions
+- **Messages** (`/messages`) — retrieve message history for a session
+- **Chat** (`/chat`) — send a query and receive an AI-generated response along with the transcript sources used to ground it
+
+## Testing
+
+```bash
+python scripts/test_retrieval.py   # Test vector retrieval in isolation
+python scripts/test_rag.py         # Test full RAG pipeline end-to-end
+```
+
+## Notes
+
+- `.env`, virtual environments, and credentials are excluded via `.gitignore` and must never be committed.
+- Transcript ingestion is idempotent-safe per run configuration — see `design.md` for details.
+
+## License
+
+_Add your license here._
