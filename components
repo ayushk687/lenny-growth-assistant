@@ -1,0 +1,54 @@
+
+## Components
+
+### 1. Ingestion Pipeline (`backend/scripts/ingest.py`)
+- Reads raw transcripts from `backend/data/transcripts/{guest-name}/transcript.md`
+- Cleans and chunks transcript text into retrievable segments
+- Generates embeddings for each chunk using Sentence Transformers
+- Stores chunks + embeddings in PostgreSQL via `pgvector`
+- Current dataset: 9,539 transcript chunks across all indexed episodes
+
+### 2. Database Layer
+- **PostgreSQL (Supabase)** as the primary datastore
+- **pgvector** extension for vector similarity search
+- **SQLAlchemy** as the ORM
+- **Alembic** manages schema migrations (`backend/alembic/`)
+
+Core tables (adjust to match actual schema):
+- `transcripts` / `transcript_chunks` — chunked text + embedding vectors + guest metadata
+- `chat_sessions` — user chat sessions
+- `messages` — individual messages within a session, linked to session
+
+### 3. Retrieval Layer
+- Given a user query, embed it with the same Sentence Transformers model used at ingestion time
+- Run a similarity search (cosine/L2, depending on config) against `pgvector`
+- Return top-K matching chunks with source guest/episode metadata for citation
+
+### 4. Generation Layer
+- **Ollama** runs **Llama 3.2** locally
+- Retrieved chunks are injected into the prompt as grounding context
+- The model generates a response constrained to the retrieved material, with source attribution
+
+### 5. API Layer (FastAPI)
+- Chat session management (create/list/delete sessions)
+- Message endpoints (send message, receive RAG-grounded response)
+- Retrieval debugging endpoints (raw chunk retrieval, for testing relevance without generation)
+
+## Data Flow Summary
+
+1. Transcripts are ingested once (or re-ingested on update) into the vector store.
+2. A user sends a message via the chat API.
+3. The backend embeds the message, retrieves relevant chunks, and builds a grounded prompt.
+4. Llama 3.2 (via Ollama) generates a response using that context.
+5. The response, along with the session/message history, is persisted and returned.
+
+## Design Principles
+
+- **Grounding over generation**: responses should be traceable back to actual transcript content, not free-form model knowledge.
+- **Local-first inference**: Ollama/Llama 3.2 keeps generation local rather than depending on external LLM APIs.
+- **Incremental ingestion**: the pipeline is designed to support adding new episodes without reprocessing the entire corpus.
+
+## Known Constraints / Future Work
+
+- _Add any current limitations here (e.g., chunk size tuning, retrieval accuracy, latency)._
+- _Add planned improvements (e.g., re-ranking, multi-turn context handling, citation formatting)._
